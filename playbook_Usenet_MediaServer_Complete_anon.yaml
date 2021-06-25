@@ -1,5 +1,4 @@
 #-----------------SETUP FOLDER STRUCTURE-----------------
----
 - hosts: all
   user: serveradmin
   become: true
@@ -10,9 +9,9 @@
       file:
        path: "{{ item }}"
        state: directory
-       owner: serveradmin
-       group: serveradmin
-       mode: 02775 #make serveradmin user and group own the files and folders, 02 in the beginning corresponds to chmod g+s
+       owner: "serveradmin"
+       group: "serveradmin"
+       mode: "u=rwx,g=rwx,o=rx,g+s" #make serveradmin user and group own the files and folders, 02 in the beginning corresponds to chmod g+s
       loop:
        - /home/serveradmin/docker/shared/DockerCompletedMovies
        - /home/serveradmin/docker/shared/DockerCompletedTVshows
@@ -24,7 +23,7 @@
        - /home/serveradmin/docker/sonarr
        - /home/serveradmin/docker/radarr
        - /home/serveradmin/docker/sabnzbd
-
+       
 #-----------------INSTALL AND MOUNT NFS & SAMBA SHARES-----------------
 
 - hosts: all
