@@ -18,7 +18,7 @@ Create an inventory file anywhere, for example in the home directory (change IP 
 # cd ansible
 #sudo nano inventory
 
-ansible_test ansible_host=192.168.0.119 ansible_user=serveradmin
+ansible_test ansible_host=<server-ip> ansible_user=serveradmin
 
 Test the inventory by running the following command:
 
