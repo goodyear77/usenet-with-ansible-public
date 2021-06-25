@@ -35,8 +35,8 @@
     - name: Update apt cache
       apt: update_cache=yes cache_valid_time=3600
 
-    - name: Upgrade all apt packages
-      apt: upgrade=dist
+#    - name: Upgrade all apt packages
+#      apt: upgrade=dist
     
     # REQUIRED PACKAGES FOR USING ANSIBLE (for NFS installation)
     - name: Install related Ubuntu packages
