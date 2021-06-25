@@ -1,4 +1,4 @@
-********Setup new host server with SSH keys (the machine that will act as the Docker/Download server on ESXi)*********
+******** Setup new host server with SSH keys (the machine that will act as the Docker/Download server on ESXi) *********
 
 1. Install Ubuntu server with SSH and Samba services. User username ‘serveradmin’
 2. Add ‘serveradmin’ to sudo group:  # sudo usermod -aG sudo serveradmin
@@ -6,7 +6,9 @@
 
 You should now be able to login with ssh to the server without password 
 
-********Setup inventory (client machine)************
+******** Setup inventory (client machine) ************
+
+Install ansible if you haven't done so.
 
 The inventory specifies all of the servers we want to manage, with aliases.
 
@@ -26,7 +28,7 @@ Test uptime for a specific host:
 
 # ansible ansible_test -i /path/to/inventory -m ping
 
-*******Run playbook:*********
+******* Run playbook *********
 
 Playbooks can be found at https://github.com/goodyear77/usenet-via-ansible
 
