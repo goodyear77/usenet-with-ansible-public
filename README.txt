@@ -12,7 +12,7 @@ Install ansible if you haven't done so.
 
 The inventory specifies all of the servers we want to manage, with aliases.
 
-Create an inventory file anywhere, for example in the home directory:
+Create an inventory file anywhere, for example in the home directory (change IP to the IP of your remote host):
 
 #sudo mkdir ansible
 # cd ansible
