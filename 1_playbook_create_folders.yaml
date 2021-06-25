@@ -55,7 +55,7 @@
 
 #Fix folder permissions for Plex
     - name: Set group ownership of the sabnzbd directory
-      shell: chown -R :1000 /home/serveradmin/docker/ples
+      shell: chown -R :1000 /home/serveradmin/docker/plex
 
     - name: Change permissions on the directory to give full access to members of the group
       shell: chmod -R 775 /home/serveradmin/docker/plex
