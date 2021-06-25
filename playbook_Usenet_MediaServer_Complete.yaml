@@ -143,6 +143,7 @@
     - name: Add user to docker group
       shell: usermod -aG docker serveradmin
     
+    
 #    - name: Add user to docker group
 #      user:
 #        name: "{{ansible_user}}"
