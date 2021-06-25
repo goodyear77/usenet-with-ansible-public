@@ -1,5 +1,4 @@
 #-----------------SETUP FOLDER STRUCTURE-----------------
----
 - hosts: all
   user: serveradmin
   become: true
