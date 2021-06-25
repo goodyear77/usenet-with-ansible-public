@@ -138,10 +138,10 @@
           - containerd.io
 
     - name: Create docker group
-        shell: groupadd docker
+      shell: groupadd docker
     
     - name: Add user to docker group
-        shell: usermod -aG docker serveradmin
+      shell: usermod -aG docker serveradmin
     
 #    - name: Add user to docker group
 #      user:
