@@ -277,11 +277,9 @@
           TZ: "Europe/Stockholm"
           WATCHTOWER_CLEANUP: "true"
           WATCHTOWER_SCHEDULE: "0 0 4 * * *" # Checks for updates at 4 in the morning every day
-          WATCHTOWER_NOTIFICATIONS: "shoutrrr"
-          WATCHTOWER_NOTIFICATION_URL: "pushover://shoutrrr:a8m7qgce2rs6nptj7fzp3o7bmzqmcr@udk9spjabtaphjphz8ddxcftqbnaie/?devices= iPhone_X"
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
-          
+
     - name: Create plex container
       docker_container:
         name: plex
