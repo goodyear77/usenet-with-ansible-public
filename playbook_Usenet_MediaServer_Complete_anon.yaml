@@ -23,7 +23,7 @@
        - /home/serveradmin/docker/sonarr
        - /home/serveradmin/docker/radarr
        - /home/serveradmin/docker/sabnzbd
-       
+
 #-----------------INSTALL AND MOUNT NFS & SAMBA SHARES-----------------
 
 - hosts: all
@@ -34,8 +34,8 @@
     - name: Update apt cache
       apt: update_cache=yes cache_valid_time=3600
 
-    - name: Upgrade all apt packages
-      apt: upgrade=dist
+#    - name: Upgrade all apt packages
+#      apt: upgrade=dist
     
     # REQUIRED PACKAGES FOR USING ANSIBLE (for NFS installation)
     - name: Install related Ubuntu packages
@@ -90,7 +90,7 @@
 
 - hosts: all
   user: serveradmin
-  become: true
+  become: yes
   vars:
     docker_compose_version: "1.28.5"
   tasks:
@@ -136,16 +136,10 @@
           - docker-ce-cli
           - containerd.io
 
-    - name: Create docker group
-      shell: groupadd docker
-    
     - name: Add user to docker group
-      shell: usermod -aG docker serveradmin
-    
-#    - name: Add user to docker group
-#      user:
-#        name: "{{ansible_user}}"
-#        group: docker
+      user:
+        name: "{{ansible_user}}"
+        group: docker
 
     - name: Download docker-compose {{ docker_compose_version }}
       get_url:
@@ -161,7 +155,7 @@
       command: mv ~/docker-compose /usr/local/bin/docker-compose
       when: docker_compose.stat.exists
 
-    # REQUIRED PACKAGES FOR USING ANSIBLE (for portainer installation below)
+    # REQUIRED PACKAGES FOR USING ANSIBLE DOCKER (for portainer installation below)
     - name: Install related Ubuntu packages
       apt:
         name: "{{ packages }}"
@@ -189,12 +183,6 @@
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
           - portainer_data:/data
-
-  handlers:
-    - name: restart docker
-      service: 
-        name: docker 
-        state: restarted
 
 #-----------------INSTALL ALL CONTAINERS-----------------
 
@@ -278,7 +266,7 @@
           WATCHTOWER_SCHEDULE: "0 0 4 * * *" # Checks for updates at 4 in the morning every day
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
-
+          
     - name: Create plex container
       docker_container:
         name: plex
