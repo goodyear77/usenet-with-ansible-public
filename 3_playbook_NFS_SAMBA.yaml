@@ -1,0 +1,59 @@
+- hosts: all
+  user: serveradmin
+  become: true
+  tasks:
+    # UPGRADE AND INSTALL REQUIRED UBUNTU PACKAGES
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+
+    - name: Upgrade all apt packages
+      apt: upgrade=dist
+    
+    # REQUIRED PACKAGES FOR USING ANSIBLE (for NFS installation)
+    - name: Install related Ubuntu packages
+      apt:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+          - nfs-common
+    
+    # MOUNT SHARES
+    - name: Mount NFS share for movies
+      shell: echo "192.168.0.208:/volume1/Filmer /home/serveradmin/docker/shared/remotemovies nfs nfsvers=3,rsize=8192,wsize=8192,timeo=14,intr" >> /etc/fstab
+    
+    - name: Mount NFS share for kids movies
+      shell: echo "192.168.0.208:/volume1/Barnfilmer /home/serveradmin/docker/shared/remotekidsmovies nfs nfsvers=3,rsize=8192,wsize=8192,timeo=14,intr" >> /etc/fstab
+    
+    - name: Mount NFS share for tvshows
+      shell: echo "192.168.0.208:/volume1/TV /home/serveradmin/docker/shared/remotetvshows nfs nfsvers=3,rsize=8192,wsize=8192,timeo=14,intr" >> /etc/fstab
+   
+    - name: Mount NFS share for ESXi
+      shell: echo "192.168.0.208:/volume1/ESXi /home/serveradmin/docker/shared/remoteESXi nfs nfsvers=3,rsize=8192,wsize=8192,timeo=14,intr" >> /etc/fstab
+
+    # CONFIGURE SAMBA USER
+    - name: Configure Samba users.
+      shell: >
+        (pdbedit --user=serveradmin 2>&1 > /dev/null)
+        || (echo ''; echo '')
+        | smbpasswd -s -a serveradmin
+      register: smbpasswd
+      changed_when: "'Added user' in smbpasswd.stdout"
+      loop_control:
+        label: "{{ serveradmin }}"
+
+    # ADD HOME FOLDERS TO SAMBA SHARE
+    - name: Add home folders to Samba share
+      blockinfile:
+        path: /etc/samba/smb.conf
+        block: |
+          [homes]
+            comment = Home Directories
+            browseable = yes
+            read only = no
+            create mask = 0700
+            directory mask = 0700
+            valid users = %S
+ 
+    - name: Restart SAMBA service
+      shell: systemctl restart smbd

@@ -1,0 +1,82 @@
+#Install all containers
+- hosts: all
+  user: serveradmin
+  become: true
+  tasks:
+    # Copy config for Sabnzbd
+    - name: Copy sabnzbd config
+      shell: cp /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/sabnzbd/sabnzbd.ini /home/serveradmin/docker/sabnzbd/
+
+    - name: Create sabnzbd container
+      docker_container:
+        name: sabnzbd
+        image: ghcr.io/linuxserver/sabnzbd:latest
+        state: started
+        recreate: yes
+        restart_policy: unless-stopped
+        env:
+          TZ: "Europe/Stockholm"
+          PUID: "1000"
+          GUID: "1000"
+        published_ports:
+          - "8080:8080"
+          - "9090:9090"
+        volumes:
+          - /home/serveradmin/docker/sabnzbd:/config
+          - /home/serveradmin/docker/shared/DockerCompletedMovies:/DockerCompletedMovies
+          - /home/serveradmin/docker/shared/DockerCompletedTVshows:/DockerCompletedTVshows
+          - /home/serveradmin/docker/shared/remotemovies:/remotemovies
+
+    - name: Create sonarr container
+      docker_container:
+        name: sonarr
+        image: ghcr.io/linuxserver/sonarr:latest
+        state: started
+        recreate: yes
+        restart_policy: unless-stopped
+        env:
+          TZ: "Europe/Stockholm"
+          PUID: "1000"
+          GUID: "1000"
+        published_ports:
+          - "8989:8989"
+        volumes:
+          - /home/serveradmin/docker/sonarr:/config
+          - /home/serveradmin/docker/shared/remotetvshows:/remotetvshows
+          - /home/serveradmin/docker/shared/DockerCompletedTVshows:/complete
+          - /home/serveradmin/docker/shared/remoteESXi:/backups
+
+    - name: Create radarr container
+      docker_container:
+        name: radarr
+        image: ghcr.io/linuxserver/radarr:latest
+        state: started
+        recreate: yes
+        restart_policy: unless-stopped
+        env:
+          TZ: "Europe/Stockholm"
+          PUID: "1000"
+          GUID: "1000"
+        published_ports:
+          - "7878:7878"
+        volumes:
+          - /home/serveradmin/docker/radarr:/config
+          - /home/serveradmin/docker/shared/remotemovies:/remotemovies
+          - /home/serveradmin/docker/shared/DockerCompletedMovies:/complete
+          - /home/serveradmin/docker/shared/remoteESXi:/backups
+
+    - name: Create watchtower container
+      docker_container:
+        name: watchtower
+        image: containrrr/watchtower:latest
+        state: started
+        recreate: yes
+        restart_policy: unless-stopped
+        env:
+          TZ: "Europe/Stockholm"
+          WATCHTOWER_CLEANUP: "true"
+          WATCHTOWER_SCHEDULE: "0 0 4 * * *" # Checks for updates at 4 in the morning every day
+          WATCHTOWER_NOTIFICATIONS: "shoutrrr"
+          WATCHTOWER_NOTIFICATION_URL: "pushover://shoutrrr:a8m7qgce2rs6nptj7fzp3o7bmzqmcr@udk9spjabtaphjphz8ddxcftqbnaie/?devices= iPhone_X"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
