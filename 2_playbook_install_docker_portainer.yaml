@@ -1,6 +1,6 @@
 - hosts: all
   user: serveradmin
-  become: true
+  become: yes
   vars:
     docker_compose_version: "1.28.5"
   tasks:
@@ -8,8 +8,8 @@
     - name: Update apt cache
       apt: update_cache=yes cache_valid_time=3600
 
-#    - name: Upgrade all apt packages
-#      apt: upgrade=dist
+    - name: Upgrade all apt packages
+      apt: upgrade=dist
 
     - name: Install dependencies
       apt:
@@ -46,16 +46,10 @@
           - docker-ce-cli
           - containerd.io
 
-    - name: Create docker group
-      shell: groupadd docker
-    
     - name: Add user to docker group
-      shell: usermod -aG docker serveradmin
-    
-#    - name: Add user to docker group
-#      user:
-#        name: "{{ansible_user}}"
-#        group: docker
+      user:
+        name: "{{ansible_user}}"
+        group: docker
 
     - name: Download docker-compose {{ docker_compose_version }}
       get_url:
@@ -71,7 +65,7 @@
       command: mv ~/docker-compose /usr/local/bin/docker-compose
       when: docker_compose.stat.exists
 
-    # REQUIRED PACKAGES FOR USING ANSIBLE (for portainer installation below)
+    # REQUIRED PACKAGES FOR USING ANSIBLE DOCKER (for portainer installation below)
     - name: Install related Ubuntu packages
       apt:
         name: "{{ packages }}"
@@ -99,9 +93,3 @@
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
           - portainer_data:/data
-
-  handlers:
-    - name: restart docker
-      service: 
-        name: docker 
-        state: restarted
