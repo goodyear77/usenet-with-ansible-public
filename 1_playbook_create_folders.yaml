@@ -1,4 +1,3 @@
----
 - hosts: all
   user: serveradmin
   become: true
