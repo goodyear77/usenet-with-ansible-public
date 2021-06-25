@@ -1,4 +1,4 @@
-#Install all containers
+ #Install all containers
 - hosts: all
   user: serveradmin
   become: true
@@ -80,3 +80,24 @@
           WATCHTOWER_NOTIFICATION_URL: "pushover://shoutrrr:a8m7qgce2rs6nptj7fzp3o7bmzqmcr@udk9spjabtaphjphz8ddxcftqbnaie/?devices= iPhone_X"
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
+          
+    - name: Create plex container
+      docker_container:
+        name: plex
+        image: ghcr.io/linuxserver/plex:latest
+        state: started
+        recreate: yes
+        restart_policy: unless-stopped
+        env:
+          TZ: "Europe/Stockholm"
+          PUID: "1000"
+          GUID: "1000"
+          VERSION: "docker"
+        volumes:
+          - /home/serveradmin/docker/plex:/config
+          - /home/serveradmin/docker/plex/temp:/transcode
+          - /home/serveradmin/docker/shared/remotetvshows:/tv
+          - /home/serveradmin/docker/shared/remotemovies:/movies
+          - /home/serveradmin/docker/shared/remotekidsmovies:/kidsmovies
+          - /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex:/backups
+
