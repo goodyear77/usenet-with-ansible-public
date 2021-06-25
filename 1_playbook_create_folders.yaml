@@ -34,7 +34,7 @@
       shell: chmod g+s /home/serveradmin/docker/sabnzbd
 
 #Fix folder permissions for Sonarr
-    - name: Set group ownership of the sabnzbd directory
+    - name: Set group ownership of the sonarr directory
       shell: chown -R :1000 /home/serveradmin/docker/sonarr
 
     - name: Change permissions on the directory to give full access to members of the group
@@ -44,7 +44,7 @@
       shell: chmod g+s /home/serveradmin/docker/sonarr
 
 #Fix folder permissions for Radarr
-    - name: Set group ownership of the sabnzbd directory
+    - name: Set group ownership of the radarr directory
       shell: chown -R :1000 /home/serveradmin/docker/radarr
 
     - name: Change permissions on the directory to give full access to members of the group
@@ -54,7 +54,7 @@
       shell: chmod g+s /home/serveradmin/docker/radarr
 
 #Fix folder permissions for Plex
-    - name: Set group ownership of the sabnzbd directory
+    - name: Set group ownership of the plex directory
       shell: chown -R :1000 /home/serveradmin/docker/plex
 
     - name: Change permissions on the directory to give full access to members of the group
