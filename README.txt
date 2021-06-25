@@ -1,10 +1,29 @@
 ******** Setup new host server with SSH keys (the machine that will act as the Docker/Download server on ESXi) *********
 
 1. Install Ubuntu server with SSH and Samba services. User username ‘serveradmin’
-2. Add ‘serveradmin’ to sudo group:  # sudo usermod -aG sudo serveradmin
-3. Generate and copy SSH keys to the machine that will act as the Ainsible control node, this will allow for password-less login (source: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-ubuntu-1604):  # ssh-keygen (follow the steps and select empty passphrase)  Copy the SSH keys to the client machine (the one you are installing Ainsible on). NOTE: you may need to create a key-pair on the local machine first:  On client machine: # ssh-keygen [enter] [enter] [enter]  Now copy the ssh key of the remote host, by typing (on the client machine): #ssh-copy-id serveradmin@remote_host
+2. Add ‘serveradmin’ to sudo group: 
 
-You should now be able to login with ssh to the server without password 
+# sudo usermod -aG sudo serveradmin
+
+3. Generate and copy SSH keys to the machine that will act as the Ainsible control node, this will allow for password-less login (source: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-ubuntu-1604):
+
+# ssh-keygen (follow the steps and select empty passphrase)
+
+Copy the SSH keys to the client machine (the one you are installing Ainsible on). NOTE: you may need to create a key-pair on the local machine first:
+
+On client machine:
+
+# ssh-keygen
+[enter]
+[enter]
+[enter]
+
+Now copy the ssh key of the remote host, by typing (on the client machine):
+
+#ssh-copy-id serveradmin@remote_host
+
+You should now be able to login with ssh to the server without password
+
 
 ******** Setup inventory (client machine) ************
 
