@@ -336,6 +336,7 @@
       docker_container:
         name: plex
         image: ghcr.io/linuxserver/plex:latest
+        network_mode: host
         state: started
         recreate: yes
         restart_policy: unless-stopped
@@ -354,41 +355,22 @@
 
   # Stop Plex container to copy the metadata from the backup location
     - name: Stop plex container
-      docker_container:
-        name: plex
-        state: stopped
+      shell: docker stop plex
 
   # Copy the backed up files from the NAS to the local folder, setting the permissions
-#       - name: Restore Plex backuo from NAS
-#         copy:
-#           src: /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/
-#           dest: /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
-#           mode: 0775
+    - name: Restore Plex backup from NAS
+      copy:
+        src: /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/
+        dest: /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
+        mode: 0775
       
     # Restart the plex container which will now have all data restored
-    - name: Create plex container
-      docker_container:
-        name: plex
-        image: ghcr.io/linuxserver/plex:latest
-        state: started
-        restart: yes
-        restart_policy: unless-stopped
-        env:
-          TZ: "Europe/Stockholm"
-          PUID: "1000"
-          GUID: "1000"
-          VERSION: "docker"
-        volumes:
-          - /home/serveradmin/docker/plex:/config
-          - /home/serveradmin/docker/plex/temp:/transcode
-          - /home/serveradmin/docker/shared/remotetvshows:/tv
-          - /home/serveradmin/docker/shared/remotemovies:/movies
-          - /home/serveradmin/docker/shared/remotekidsmovies:/kidsmovies
-          - /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex:/backups
+    - name: Start plex container
+      shell: docker start plex
 
       # Add cronjob to rsync all new data to plex backup folder on NAS
     - name: Add cronjob to backup plex to NAS at 5 AM everyday
-      shell: crontab -l | { cat; echo "0 5 * * * rsync -aPhi --delete /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/ /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/"; } | crontab -
+      shell: (crontab -l 2>/dev/null; echo "0 5 * * * rsync -aPhi --delete /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/ /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/") | crontab -
 
 ################# FINISHED! #######################
 
