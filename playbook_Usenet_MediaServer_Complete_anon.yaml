@@ -100,6 +100,10 @@
     - name: Mount NFS share for ESXi
       shell: echo "192.168.0.208:/volume1/ESXi /home/serveradmin/docker/shared/remoteESXi nfs nfsvers=3,rsize=8192,wsize=8192,timeo=14,intr" >> /etc/fstab
 
+    # Manually mount the shares
+    - name: Mount NFS share for ESXi
+      shell: mount -a
+    
     # CONFIGURE SAMBA USER
     - name: Configure Samba users.
       shell: >
