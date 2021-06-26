@@ -240,6 +240,16 @@
     - name: Copy sabnzbd config
       shell: cp /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/sabnzbd/sabnzbd.ini /home/serveradmin/docker/sabnzbd/
 
+#Fix folder permissions for SABnzbd
+    - name: Set group ownership of the sabnzbd directory
+      shell: chown -R :1000 /home/serveradmin/docker/sabnzbd
+
+    - name: Change permissions on the directory to give full access to members of the group
+      shell: chmod -R 775 /home/serveradmin/docker/sabnzbd
+ 
+    - name: Ensure all future content in the folder will inherit group ownership
+      shell: chmod g+s /home/serveradmin/docker/sabnzbd
+
     - name: Create sabnzbd container
       docker_container:
         name: sabnzbd
