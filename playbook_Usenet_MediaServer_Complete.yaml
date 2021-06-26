@@ -254,7 +254,7 @@
       docker_container:
         name: sabnzbd
         image: ghcr.io/linuxserver/sabnzbd:latest
-        state: started
+ #       state: started
         recreate: yes
         restart_policy: unless-stopped
         env:
@@ -343,3 +343,8 @@
           - /home/serveradmin/docker/shared/remotemovies:/movies
           - /home/serveradmin/docker/shared/remotekidsmovies:/kidsmovies
           - /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex:/backups
+
+################# FINISHED! REBOOTING #######################
+
+    - name: Reboot the machine with all defaults options
+      reboot:
