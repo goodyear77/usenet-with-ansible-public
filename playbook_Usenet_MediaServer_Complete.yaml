@@ -357,12 +357,23 @@
     - name: Stop plex container
       shell: docker stop plex
 
-  # Copy the backed up files from the NAS to the local folder, setting the permissions
-    - name: Restore Plex backup from NAS
-      copy:
-        src: /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/
-        dest: /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
-        mode: 0775
+  # Delete fresh plex files
+    - name: Delete existing plex files to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
+        
+   # Copy the backed up files from the NAS to the local folder, setting the permissions      
+    - name: Copy plex files from NAS
+      shell: cp -R /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/* /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/*
+           
+   #Fix folder permissions for copied plex files
+    - name: Set group ownership of the plex directory
+      shell: chown -R :1000 /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
+
+    - name: Change permissions on the directory to give full access to members of the group
+      shell: chmod -R 775 /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
+ 
+    - name: Ensure all future content in the folder will inherit group ownership
+      shell: chmod g+s /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
       
     # Restart the plex container which will now have all data restored
     - name: Start plex container
