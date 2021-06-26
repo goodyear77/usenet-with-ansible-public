@@ -16,7 +16,11 @@
  
     - name: Ensure all future content in the folder will inherit group ownership
       shell: chmod g+s /home/serveradmin/docker/sabnzbd
-
+   
+    - name: Reboot the machine and wait 5 min for it to come back
+      reboot:
+        reboot_timeout: 300
+        
     - name: Create sabnzbd container
       docker_container:
         name: sabnzbd
