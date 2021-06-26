@@ -11,7 +11,7 @@
        state: directory
        owner: "serveradmin"
        group: "serveradmin"
-       mode: "u=rwx,g=rwx,o=rx,g+s" #make serveradmin user and group own the files and folders
+       mode: "u=rwx,g=rwx,o=rx,g+s" #make serveradmin user and group own the files and folders, 02 in the beginning corresponds to chmod g+s
       loop:
        - /home/serveradmin/docker/shared/DockerCompletedMovies
        - /home/serveradmin/docker/shared/DockerCompletedTVshows
@@ -101,9 +101,9 @@
       shell: echo "192.168.0.208:/volume1/ESXi /home/serveradmin/docker/shared/remoteESXi nfs nfsvers=3,rsize=8192,wsize=8192,timeo=14,intr" >> /etc/fstab
 
     # Manually mount the shares
-    - name: Mount NFS share for ESXi
+    - name: Manually mount NFS shares
       shell: mount -a
-    
+
     # CONFIGURE SAMBA USER
     - name: Configure Samba users.
       shell: >
@@ -143,8 +143,8 @@
     - name: Update apt cache
       apt: update_cache=yes cache_valid_time=3600
 
-#    - name: Upgrade all apt packages
-#      apt: upgrade=dist
+ #   - name: Upgrade all apt packages
+ #     apt: upgrade=dist
 
     - name: Install dependencies
       apt:
@@ -249,7 +249,15 @@
  
     - name: Ensure all future content in the folder will inherit group ownership
       shell: chmod g+s /home/serveradmin/docker/sabnzbd
-
+   
+#Fix file permissions for SABnzbd config file
+    - name: Set group ownership of the sabnzbd config file
+      ansible.builtin.file:
+        path: /home/serveradmin/docker/sabnzbd/sabnzbd.ini
+        owner: serveradmin
+        group: serveradmin
+        mode: 0755
+   
     - name: Create sabnzbd container
       docker_container:
         name: sabnzbd
@@ -326,6 +334,7 @@
       docker_container:
         name: plex
         image: ghcr.io/linuxserver/plex:latest
+        network_mode: host
         state: started
         recreate: yes
         restart_policy: unless-stopped
@@ -341,7 +350,55 @@
           - /home/serveradmin/docker/shared/remotemovies:/movies
           - /home/serveradmin/docker/shared/remotekidsmovies:/kidsmovies
           - /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex:/backups
-################# FINISHED! REBOOTING #######################
 
-    - name: Reboot the machine with all defaults options
-      reboot:
+  # Stop Plex container to copy the metadata from the backup location
+    - name: Stop plex container
+      shell: docker stop plex
+
+  # Delete fresh plex files
+    - name: Delete plex 'Media' folder to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Media
+
+    - name: Delete plex 'Plug-ins' folder to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Plug-ins
+
+    - name: Delete plex 'Plug-in Support' folder to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Plug-in\ Support
+ 
+    - name: Delete plex 'Metadata' folder to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Metadata
+     
+   # Copy the backed up files from the NAS to the local folder, setting the permissions      
+    - name: Copy plex 'Media' files from NAS
+      shell: cp -R /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/Media/ /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Media
+
+    - name: Copy plex 'Plug-ins' files from NAS
+      shell: cp -r /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/Plug-ins/ /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Plug-ins
+
+    - name: Copy plex 'Plug-in Support' files from NAS
+      shell: cp -r /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/Plug-in\ Support/ /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Plug-in\ Support
+
+    - name: Copy plex 'Metadata' files from NAS
+      shell: cp -r /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/Metadata/ /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Metadata
+
+
+   #Fix folder permissions for copied plex files
+    - name: Set group ownership of the plex directory
+      shell: chown -R :1000 /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
+
+    - name: Change permissions on the directory to give full access to members of the group
+      shell: chmod -R 775 /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
+ 
+    - name: Ensure all future content in the folder will inherit group ownership
+      shell: chmod g+s /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
+      
+    # Restart the plex container which will now have all data restored
+    - name: Start plex container
+      shell: docker start plex
+
+      # Add cronjob to rsync all new data to plex backup folder on NAS
+    - name: Add cronjob to backup plex to NAS at 5 AM everyday
+      shell: (crontab -l 2>/dev/null; echo "0 5 * * * rsync -aPhi --delete /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/ /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/") | crontab -
+
+################# FINISHED! #######################
+
