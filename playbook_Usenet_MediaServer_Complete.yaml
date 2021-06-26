@@ -358,13 +358,32 @@
       shell: docker stop plex
 
   # Delete fresh plex files
-    - name: Delete existing plex files to replace with backup
-      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
-        
+    - name: Delete plex 'Media' folder to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Media
+
+    - name: Delete plex 'Plug-ins' folder to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Plug-ins
+
+    - name: Delete plex 'Plug-in Support' folder to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Plug-in\ Support
+ 
+    - name: Delete plex 'Metadata' folder to replace with backup
+      shell: rm -rf /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Metadata
+     
    # Copy the backed up files from the NAS to the local folder, setting the permissions      
-    - name: Copy plex files from NAS
-      shell: cp -R /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/* /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/*
-           
+    - name: Copy plex 'Media' files from NAS
+      shell: cp -R /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/Media/ /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Media
+
+    - name: Copy plex 'Plug-ins' files from NAS
+      shell: cp -r /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/Plug-ins/ /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Plug-ins
+
+    - name: Copy plex 'Plug-in Support' files from NAS
+      shell: cp -r /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/Plug-in\ Support/ /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Plug-in\ Support
+
+    - name: Copy plex 'Metadata' files from NAS
+      shell: cp -r /home/serveradmin/docker/shared/remoteESXi/usenet_linux_config_files/plex/Metadata/ /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/Metadata
+
+
    #Fix folder permissions for copied plex files
     - name: Set group ownership of the plex directory
       shell: chown -R :1000 /home/serveradmin/docker/plex/Library/Application\ Support/Plex\ Media\ Server/
