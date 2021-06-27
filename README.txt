@@ -58,7 +58,7 @@ Test the inventory by running the following command:
 
 ******* Run playbook *********
 
-Playbook can be found at https://github.com/goodyear77/usenet-via-ansible/blob/main/playbook_Usenet_MediaServer_Complete.yaml
+Playbook can be found at https://github.com/goodyear77/usenet-with-ansible-public/blob/main/playbook_Usenet_MediaServer_Complete_anon.yaml
 
 Copy the code from GitHub and create a new file locally where you paste the content:
 
