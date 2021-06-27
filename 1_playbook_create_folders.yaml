@@ -1,3 +1,4 @@
+#-----------------SETUP FOLDER STRUCTURE-----------------
 - hosts: all
   user: serveradmin
   become: true
@@ -10,7 +11,7 @@
        state: directory
        owner: "serveradmin"
        group: "serveradmin"
-       mode: "u=rwx,g=rwx,o=rx,g+s" #make serveradmin user and group own the files and folders
+       mode: "u=rwx,g=rwx,o=rx,g+s" #make serveradmin user and group own the files and folders, 02 in the beginning corresponds to chmod g+s
       loop:
        - /home/serveradmin/docker/shared/DockerCompletedMovies
        - /home/serveradmin/docker/shared/DockerCompletedTVshows
@@ -62,3 +63,4 @@
  
     - name: Ensure all future content in the folder will inherit group ownership
       shell: chmod g+s /home/serveradmin/docker/plex
+
