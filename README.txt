@@ -11,7 +11,7 @@ On remote host (future download server):
 
 # ssh-keygen (follow the steps and select empty passphrase)
 
-Now we will copy the SSH keys to the client machine (the one you are installing Ainsible on). NOTE: you may need to create a key-pair on the local machine first.
+Now we will copy the SSH keys to the client machine (the one you are installing Ainsible on). NOTE: you may need to create a key-pair on your local client machine first.
 
 On client machine:
 
