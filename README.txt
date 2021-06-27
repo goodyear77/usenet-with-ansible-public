@@ -71,3 +71,29 @@ Now run the ainsible playbook:
 # ansible-playbook -i inventory playbook_install.yaml -K
 
 Optional: run the separate playbooks on Github in order 1-4
+
+************ Post installation tasks ***********
+
+* OPTIONAL if you are replacing a server: change DHCP-server so the new MAC-address gets the old IP, that way all bookmarks still work.
+    * Move the old machine to a new IP
+    * Add the new MAC and lock it to the old IP
+    * On first old and then new machine (release and renew IP on old machine then the same on new machine): # /etc/init.d/networking restart
+    * Optional: you can also release the old IP and then renew it, but ONLY IF YOU ARE ON A TERMINAL since you will lose IP connectivity: # sudo dhclient -r # sudo dhclient
+
+* Access all containers to make sure they are up:
+    - Sabnzbd is available at: <server-ip>:8080
+    - Sonarr is available at: <server-ip>:8989
+    - Radarr is available at: <server-ip>:7878
+    - Plex is available at: <server-ip>:32400/web
+    - Portainer is available at: <server-ip>:9000
+        * You need to create an admin account and connect to docker as a first step
+
+* Plex: make sure the following is setup:
+    - Turn on automatic scan and trash can
+    - Change backup location to /backups (under settings->schedualed tasks)
+    - Change transcode location to /transcode under settings (show advanced)->Transcode->Transcoder temporary directory
+* Radarr:
+    - Restore from backup zip-file, found under the backup files on MedaiStation: ESXi->usenet_linux_config_files->radarr->manual (under ‘automatic’ if automatic backup was used to create the backupp)
+* Sonarr:
+    - Restore from backup zip-file, found under the backup files on MedaiStation: ESXi->usenet_linux_config_files->sonarr->manual (under ‘automatic’ if automatic backup was used to create the backup)
+
