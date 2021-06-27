@@ -22,7 +22,7 @@ On client machine:
 
 Now copy the ssh key of the remote host, by typing (on the client machine):
 
-# ssh-copy-id serveradmin@remote_host
+# ssh-copy-id serveradmin@<server-ip>
 
 You should now be able to login with ssh to the server without password:
 
