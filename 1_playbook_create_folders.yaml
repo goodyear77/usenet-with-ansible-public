@@ -1,66 +1,49 @@
 #-----------------SETUP FOLDER STRUCTURE-----------------
+
+# Instead of using "all" you should/could specify server names.
+# it's a little bit more safe.
+
 - hosts: all
   user: serveradmin
   become: true
+
   vars:
     docker_compose_version: "1.28.5"
+    serveradmin_path: /home/serveradmin/docker
+    server_owner: serveradmin
+    server_group: 1000
+    serveradmin_dirs:
+      - /sabnzbd
+      - /shared/DockerCompletedMovies"
+      - /shared/DockerCompletedTVshows
+      - /shared/remotemovies
+      - /shared/remotekidsmovies
+      - /shared/remotetvshows
+      - /shared/remoteESXi
+      - /plex
+      - /sonarr
+      - /radarr
+
   tasks:
-    - name: create directories
+    - name: create directories owned by serveradmin, group serveradmin
       file:
-       path: "{{ item }}"
-       state: directory
-       owner: "serveradmin"
-       group: "serveradmin"
-       mode: "u=rwx,g=rwx,o=rx,g+s" #make serveradmin user and group own the files and folders, 02 in the beginning corresponds to chmod g+s
+        path: "{{ serveradmin_path }}/{{ item }}"
+        state: directory
+        owner: "{{ server_owner }}"
+        group: "{{ server_group }}"
+        mode: "u=rwx,g=rwx,o=rx,g+s"
       loop:
-       - /home/serveradmin/docker/shared/DockerCompletedMovies
-       - /home/serveradmin/docker/shared/DockerCompletedTVshows
-       - /home/serveradmin/docker/shared/remotemovies
-       - /home/serveradmin/docker/shared/remotekidsmovies
-       - /home/serveradmin/docker/shared/remotetvshows
-       - /home/serveradmin/docker/shared/remoteESXi
-       - /home/serveradmin/docker/plex
-       - /home/serveradmin/docker/sonarr
-       - /home/serveradmin/docker/radarr
-       - /home/serveradmin/docker/sabnzbd
+        - "{{ serveradmin_dirs }}"
 
-#Fix folder permissions for SABnzbd
-    - name: Set group ownership of the sabnzbd directory
-      shell: chown -R :1000 /home/serveradmin/docker/sabnzbd
-
-    - name: Change permissions on the directory to give full access to members of the group
-      shell: chmod -R 775 /home/serveradmin/docker/sabnzbd
- 
-    - name: Ensure all future content in the folder will inherit group ownership
-      shell: chmod g+s /home/serveradmin/docker/sabnzbd
-
-#Fix folder permissions for Sonarr
-    - name: Set group ownership of the sonarr directory
-      shell: chown -R :1000 /home/serveradmin/docker/sonarr
-
-    - name: Change permissions on the directory to give full access to members of the group
-      shell: chmod -R 775 /home/serveradmin/docker/sonarr
- 
-    - name: Ensure all future content in the folder will inherit group ownership
-      shell: chmod g+s /home/serveradmin/docker/sonarr
-
-#Fix folder permissions for Radarr
-    - name: Set group ownership of the radarr directory
-      shell: chown -R :1000 /home/serveradmin/docker/radarr
-
-    - name: Change permissions on the directory to give full access to members of the group
-      shell: chmod -R 775 /home/serveradmin/docker/radarr
- 
-    - name: Ensure all future content in the folder will inherit group ownership
-      shell: chmod g+s /home/serveradmin/docker/radarr
-
-#Fix folder permissions for Plex
-    - name: Set group ownership of the plex directory
-      shell: chown -R :1000 /home/serveradmin/docker/plex
-
-    - name: Change permissions on the directory to give full access to members of the group
-      shell: chmod -R 775 /home/serveradmin/docker/plex
- 
-    - name: Ensure all future content in the folder will inherit group ownership
-      shell: chmod g+s /home/serveradmin/docker/plex
-
+    - name: Fix folder permissions for SABnzbd. sgid bit mode.
+      file:
+        path: "{{ serveradmin_path }}/sabnzbd"
+        state: directory
+        owner: "{{ server_owner }}"
+        group: "{{ server_group }}"
+        mode: 2775
+      loop:
+        - sabnzbd
+        - sonarr
+        - radarr
+        - plex
